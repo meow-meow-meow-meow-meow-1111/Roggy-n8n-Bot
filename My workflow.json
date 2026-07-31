@@ -1,0 +1,549 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "a3780ffe-6b8c-4e2a-a1cd-8e0ba2a83c7c",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        64
+      ],
+      "webhookId": "72896e7f-6533-488f-b27e-f603d7858f98",
+      "credentials": {
+        "telegramApi": {
+          "id": "lF3Ch0NGkJR0xHpb",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "2b7aabb6-8e3f-4fe7-aeeb-f6ed4557aab4",
+                    "leftValue": "={{ $json.text }}",
+                    "rightValue": "=direct_chat",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "aec9cbf1-9dbc-471e-af59-40c5af98ff3c",
+                    "leftValue": "={{ $json.text }}",
+                    "rightValue": "=web_search",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "67e727a0-a757-4c94-aec1-2edca10f88a4",
+                    "leftValue": "={{ $json.text }}",
+                    "rightValue": "math_calc",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none"
+        }
+      },
+      "id": "42d7f18d-2752-48af-8f32-b6a082d77760",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        800,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "text": "={{ $json.text || $json.output || $json.response }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "28b40ee1-4d64-41d1-ab9b-513b89cd109c",
+      "name": "Send a text message1",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1952,
+        144
+      ],
+      "webhookId": "23219d89-a5d3-41be-bff2-3e5e97ed5fb1",
+      "credentials": {
+        "telegramApi": {
+          "id": "lF3Ch0NGkJR0xHpb",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Telegram Trigger').first().json.message.text }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are a high-speed intent classifier for an automated Telegram assistant. \n\nAnalyze the user's incoming message and return ONLY a valid raw JSON object matching this exact schema:\n\n{\n  \"intent\": \"direct_chat\" | \"web_search\" | \"math_calc\"\n}\n\nClassification Rules:\n1. \"math_calc\": Select ONLY if the message is an explicit mathematical expression, equation, or arithmetic calculation (e.g., \"5 + 10\", \"20 + 30 + 100 + 150\", \"what is 120 / 4\").\n2. \"web_search\": Select ONLY if the user explicitly asks for real-time news, current events, live updates, stock prices, weather, or recent web facts (e.g., \"todays news in india\", \"latest score\").\n3. \"direct_chat\": Select for all general conversation, greetings, conceptual explanations, coding advice, or basic Q&A.\n\nSTRICT CONSTRAINTS:\n- Output ONLY valid raw JSON.\n- Do NOT wrap in markdown code blocks (do NOT use ```json ... ```).\n- Do NOT add any extra text, conversational prefixes, or explanations."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "id": "81efadd6-d6f7-43f7-a50b-f533786b7256",
+      "name": "Basic LLM Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        448,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "model": "=google/gemma-4-26b-a4b-it:free",
+        "options": {}
+      },
+      "id": "a934ee89-d15c-4db6-8b1d-00411ffe854a",
+      "name": "OpenRouter Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        528,
+        304
+      ],
+      "credentials": {
+        "openRouterApi": {
+          "id": "V6pLlxbWOLFtkv4N",
+          "name": "OpenRouter account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Telegram Trigger').first().json.message.text }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are Roggy, an intelligent Telegram AI assistant created by Chinmay V Chatradamath (Founder and CEO of IQRogueREX).\n\nCRITICAL FORMATTING RULES:\n- Output MUST use Telegram HTML tags ONLY (<b>bold</b>, <i>italic</i>, <code>code</code>).\n- NEVER use markdown syntax like **, ***, #, ##, ###, or *.\n- Use bullet points (•) for lists instead of asterisks (*).\n- Keep responses concise, clear, and easy to scan on mobile screens.\n- Keep output under 2,000 characters."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "id": "9bd25e09-dca3-4fed-9f97-b0cd09bfbe8f",
+      "name": "Basic LLM Chain1",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1600,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "model": "=google/gemma-4-26b-a4b-it:free",
+        "options": {}
+      },
+      "id": "ce95f57e-aac0-4121-8563-36975736cda9",
+      "name": "OpenRouter Chat Model3",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        112
+      ],
+      "credentials": {
+        "openRouterApi": {
+          "id": "V6pLlxbWOLFtkv4N",
+          "name": "OpenRouter account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "query": "={{ $('Telegram Trigger').first().json.message.text }}",
+        "options": {
+          "topic": "general",
+          "search_depth": "advanced"
+        }
+      },
+      "id": "e4854f04-b853-4a83-aebb-95af1a8a0ebc",
+      "name": "Search",
+      "type": "@tavily/n8n-nodes-tavily.tavily",
+      "typeVersion": 1,
+      "position": [
+        1024,
+        368
+      ],
+      "credentials": {
+        "tavilyApi": {
+          "id": "gStpW4bJOgOidDDT",
+          "name": "Tavily account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Summarize these search results clearly using Telegram HTML tags (<b>, <i>, <code>):\n\n{{ JSON.stringify($json.results || $('Search').first().json.results) }}\n\nUser Question: {{ $('Telegram Trigger').first().json.message.text }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Today's Date: {{ $now.format('yyyy-MM-dd') }}\n\nUser Query:\n{{ $('Telegram Trigger').first().json.message.text }}\n\nSearch Results:\n{{ JSON.stringify($json.results || $('Search').first().json.results) }}\n\nTask: Answer the user's query accurately using the search results above. \nIf the user asks for time-sensitive information (like news or recent events), prioritize results published close to today's date.\nFormat output strictly using Telegram HTML tags (<b>, <i>, <code>)."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "id": "94655b27-39c2-4325-a975-d757bee3a5f0",
+      "name": "Basic LLM Chain2",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1248,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "model": "google/gemma-4-26b-a4b-it:free",
+        "options": {}
+      },
+      "id": "70aeb744-a428-4a8d-89fa-0923b95b592f",
+      "name": "OpenRouter Chat Model2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1328,
+        592
+      ],
+      "credentials": {
+        "openRouterApi": {
+          "id": "V6pLlxbWOLFtkv4N",
+          "name": "OpenRouter account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const userMessage = $('Telegram Trigger').first().json.message.text;\n\n// Clean out non-math characters except standard operators\nconst expr = userMessage.replace(/[^0-9+\\-*/().^% ]/g, '').trim();\n\nlet ans;\nlet isSuccess = false;\n\nif (expr.length > 0) {\n  try {\n    ans = Function(`\"use strict\"; return (${expr})`)();\n    if (ans !== undefined && !isNaN(ans) && typeof ans === 'number') {\n      isSuccess = true;\n    }\n  } catch (e) {\n    isSuccess = false;\n  }\n}\n\nif (isSuccess) {\n  // Pure math succeeded -> return formatted math result\n  return [{\n    json: {\n      success: true,\n      text: `<b>Math Result:</b> <code>${ans}</code>\\n<i>Expression: ${expr}</i>`\n    }\n  }];\n} else {\n  // Text was involved or math failed -> flag for LLM fallback\n  return [{\n    json: {\n      success: false,\n      userMessage: userMessage\n    }\n  }];\n}"
+      },
+      "id": "46dbc177-718f-4c2a-93ab-57990fddb3ad",
+      "name": "Code in JavaScript",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1024,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "sendChatAction",
+        "chatId": "={{ $json.message.chat.id }}"
+      },
+      "id": "90a38c9f-0f22-4f19-b941-ad77fbf16d9f",
+      "name": "Send a chat action",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        64
+      ],
+      "webhookId": "f90e22bc-4b16-4a68-a1d5-dec37799b4b7",
+      "credentials": {
+        "telegramApi": {
+          "id": "lF3Ch0NGkJR0xHpb",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ca0894b3-9d73-4ce7-9c13-3c00cd07e220",
+              "leftValue": "={{ $json.success }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "cb0801fe-673c-4e76-b3de-000c2480d07e",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1312,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "let text = $json.text || $json.output || \"\";\n\n// Convert <li> to clean bullets and remove </li> / <ul> / <ol>\ntext = text.replace(/<li>/gi, \"• \").replace(/<\\/li>/gi, \"\\n\");\ntext = text.replace(/<\\/?(ul|ol|p|div|br)\\b[^>]*>/gi, \"\");\n\n// Fix any unclosed tags\nlet openB = (text.match(/<b>/g) || []).length;\nlet closeB = (text.match(/<\\/b>/g) || []).length;\nwhile (openB > closeB) { text += \"</b>\"; closeB++; }\n\nlet openI = (text.match(/<i>/g) || []).length;\nlet closeI = (text.match(/<\\/i>/g) || []).length;\nwhile (openI > closeI) { text += \"</i>\"; closeI++; }\n\nreturn [{ json: { text: text.trim() } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1664,
+        368
+      ],
+      "id": "7fd5aad8-10f8-4252-90de-64ab91dc389b",
+      "name": "Code in JavaScript1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a chat action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Search",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a chat action": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "005eeb09-8307-4128-95fc-daac98d7101f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "169c2c8d415ed1b0ef7d5761b1d7ae315f913aa1f7b71db44f6516824f2c67d8"
+  },
+  "nodeGroups": [],
+  "id": "LAcjFCluzSyDS2wL",
+  "tags": []
+}
