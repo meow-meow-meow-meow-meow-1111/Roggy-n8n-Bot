@@ -9,7 +9,7 @@
 
 ---
 
-
+![Roggy n8n Workflow Preview](./pic.png)
 
 ---
 
