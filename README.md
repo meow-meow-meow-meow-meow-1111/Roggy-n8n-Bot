@@ -8,6 +8,8 @@
 **Roggy** is a high-performance, multi-branch Telegram bot gateway built using **n8n**. Designed with a modular architecture, it intelligently routes incoming user messages through specialized paths for deterministic math evaluation, real-time web retrieval, and conversational AI—ensuring fast execution, low token usage, and strict output formatting.
 
 ---
+## ⚡ n8n Pipeline Architecture Canvas
+
 
 ![Roggy n8n Workflow Preview](./pic.png)
 
